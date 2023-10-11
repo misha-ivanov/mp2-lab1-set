@@ -72,6 +72,24 @@ TEST(TSet, compare_two_equal_sets)
   EXPECT_EQ(set1, set2);
 }
 
+TEST(TSet, compare_three_equal_sets)
+{
+	const int size = 6;
+	TSet set1(size), set2(size), set3(size);
+	// set1 = set2 = set3 = {0, 3, 5}
+	set1.InsElem(0);
+	set1.InsElem(3);
+	set1.InsElem(5);
+	set2.InsElem(0);
+	set2.InsElem(3);
+	set2.InsElem(5);
+	set3.InsElem(0);
+	set3.InsElem(3);
+	set3.InsElem(5);
+
+	EXPECT_EQ(set1, set2, set3);
+}
+
 TEST(TSet, compare_two_non_equal_sets)
 {
   const int size = 4;
@@ -133,6 +151,18 @@ TEST(TSet, can_insert_non_existing_element_using_plus_operator)
   updatedSet = set + k;
 
   EXPECT_NE(0, updatedSet.IsMember(k));
+}
+
+TEST(TSet, can_insert_two_non_existing_element_using_plus_operator)
+{
+	const int size = 6;
+	const int k = 3, l = 5;
+	TSet set(size), updatedSet(size);
+	set.InsElem(0);
+	set.InsElem(2);
+	updatedSet = set + k + l;
+
+	EXPECT_NE(0, updatedSet.IsMember(k) && updatedSet.IsMember(l));
 }
 
 TEST(TSet, throws_when_insert_non_existing_element_out_of_range_using_plus_operator)
