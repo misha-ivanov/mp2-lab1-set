@@ -30,25 +30,26 @@ TBitField::TBitField(const TBitField& bf) // конструктор копиро
 
 TBitField::~TBitField()
 {
-	delete[]pMem;
+	delete[] pMem;
 }
 
 int TBitField::GetMemIndex(const int n) const // индекс Мем для бита n
 {
 	if (n < 0)
-		throw "out_of_bottom_border!";
+		throw "GetMemIndex: out_of_bottom_border!";
 	if (n >= BitLen)
-		throw "out_of_upper_border!";
+		throw "GetMemIndex: out_of_upper_border!";
 	return  n / (sizeof(TELEM) * 8);
 }
 
 TELEM TBitField::GetMemMask(const int n) const // битовая маска для бита n
 {
 	if (n < 0)
-		throw "out_of_bottom_border!";
+		throw "GetMemMask: out_of_bottom_border!";
 	if (n >= BitLen)
-		throw "out_of_upper_border!";
-	TELEM Mask = GetBit(n) << (sizeof(TELEM) * 8 - n % (sizeof(TELEM) * 8) - 1);
+		throw "GetMemMask: out_of_upper_border!";
+	TELEM Mask = 1;
+	Mask = Mask << (sizeof(TELEM) * 8 - n % (sizeof(TELEM) * 8) - 1);
 	return Mask;
 }
 
@@ -62,20 +63,20 @@ int TBitField::GetLength(void) const // получить длину (к-во б�
 void TBitField::SetBit(const int n) // установить бит
 {
 	if (n < 0)
-		throw "out_of_bottom_border!";
+		throw "SetBit: out_of_bottom_border!";
 	if (n >= BitLen)
-		throw "out_of_upper_border!";
-	TELEM Mask = 1;
-	Mask = Mask << (sizeof(TELEM) * 8 - (n % (sizeof(TELEM) * 8)) - 1);
+		throw "SetBit: out_of_upper_border!";
+	TELEM Mask = GetMemMask(n);
+	//Mask = Mask << (sizeof(TELEM) * 8 - (n % (sizeof(TELEM) * 8)) - 1);
 	pMem[GetMemIndex(n)] = pMem[GetMemIndex(n)] | Mask;
 }
 
 void TBitField::ClrBit(const int n) // очистить бит
 {
 	if (n < 0)
-		throw "out_of_bottom_border!";
+		throw "ClrBit: out_of_bottom_border!";
 	if (n >= BitLen)
-		throw "out_of_upper_border!";
+		throw "ClrBit: out_of_upper_border!";
 	TELEM Mask = 1;
 	Mask = Mask << (sizeof(TELEM) * 8 - (n % (sizeof(TELEM) * 8)) - 1);
 	Mask = (~Mask);
@@ -85,9 +86,9 @@ void TBitField::ClrBit(const int n) // очистить бит
 int TBitField::GetBit(const int n) const // получить значение бита
 {
 	if (n < 0)
-		"out_of_bottom_border!";
+		"GetBit: out_of_bottom_border!";
 	if (n >= BitLen)
-		throw "out_of_upper_border!";
+		throw "GetBit: out_of_upper_border!";
 	TELEM Mask = 1;
 	Mask = Mask << (sizeof(TELEM) * 8 - (n % (sizeof(TELEM) * 8)) - 1);
 
@@ -98,11 +99,18 @@ int TBitField::GetBit(const int n) const // получить значение б
 
 TBitField& TBitField::operator=(const TBitField& bf) // присваивание
 {
-	BitLen = bf.BitLen;
-	MemLen = bf.MemLen;
-	pMem = new TELEM[MemLen];
-	for (int i = 0; i < BitLen; i++)
-		pMem[i] = bf.pMem[i];
+	if (*this == bf)
+		return *this;
+	else {
+		BitLen = bf.BitLen;
+		if (MemLen != bf.MemLen) {
+			MemLen = bf.MemLen;
+			delete[] pMem;
+			pMem = new TELEM[MemLen];
+		}
+		for (int i = 0; i < BitLen; i++)
+			pMem[i] = bf.pMem[i];
+	}
 	return *this;
 }
 
